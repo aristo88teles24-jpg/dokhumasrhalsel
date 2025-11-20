@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>JetWash - Pressure Washing HTML/CSS Website Template</title>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="author" content="templatesjungle">
+  <meta name="keywords" content="pressure washing website template">
+  <meta name="description" content="JetWash is a Pressure Washing HTML/CSS Website Template">
+
+  <!--Bootstrap ================================================== -->
+  <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+
+  <!--vendor css ================================================== -->
+  <link rel="stylesheet" type="text/css" href="css/vendor.css">
+
+  <!--Link Swiper's CSS ================================================== -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css" />
+
+  <!-- Style Sheet ================================================== -->
+  <link rel="stylesheet" type="text/css" href="style.css">
+
+  <!-- Google Fonts ================================================== -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Hind:wght@300;400;500;600;700&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+    rel="stylesheet">
+
+  <!-- ===== Login overlay styles (added) ===== -->
+  <style>
+    /* Fullscreen login overlay */
+    #login-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 10, 10, 0.8);
+      z-index: 99999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #login-box {
+      background: #fff;
+      padding: 28px;
+      width: 360px;
+      max-width: calc(100% - 40px);
+      border-radius: 6px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    #login-box h4 {
+      margin-bottom: 12px;
+      font-weight: 700;
+    }
+
+    #login-box .form-control {
+      margin-bottom: 12px;
+    }
+
+    #login-error {
+      color: #c11;
+      font-size: 0.9rem;
+      display: none;
+      margin-bottom: 8px;
+    }
+
+    /* Prevent background scroll when overlay visible */
+    body.login-locked {
+      overflow: hidden;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- ===== Login overlay (added) ===== -->
+  <div id="login-overlay" aria-hidden="false" role="dialog">
+    <div id="login-box" role="document" aria-labelledby="login-title">
+      <h4 id="login-title">Masuk untuk melihat situs</h4>
+      <div id="login-error">Username atau password salah</div>
+      <form id="login-form" onsubmit="return false;">
+        <label class="form-label">Username</label>
+        <input type="text" id="login-username" class="form-control" autocomplete="username" required>
+        <label class="form-label">Password</label>
+        <input type="password" id="login-password" class="form-control" autocomplete="current-password" required>
+        <div class="d-flex justify-content-between align-items-center mt-3">
+          <button id="login-submit" class="btn btn-primary">Masuk</button>
+          <button id="login-cancel" class="btn btn-outline-secondary" type="button">Batal</button>
+        </div>
+        <div class="mt-2">
+          <small class="text-muted">Masukkan kredensial untuk mengakses situs.</small>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    /*
+      Client-side login script
+      DISCLAIMER: This is only a simple, client-side gate. NOT secure for protecting sensitive data.
+      For production and real security use server-side authentication (example .htaccess included below).
+    */
+
+    (function () {
+      // === CONFIGURE CREDENTIALS HERE ===
+      // Ganti username/password ini sebelum deploy. Ingat: ini ada di client, jadi mudah dilihat.
+      const VALID_USERNAME = "HUMASHALSEL2026";
+      const VALID_PASSWORD = "SPHPJAYA";
+
+      const overlay = document.getElementById("login-overlay");
+      const form = document.getElementById("login-form");
+      const usernameInput = document.getElementById("login-username");
+      const passwordInput = document.getElementById("login-password");
+      const errorBox = document.getElementById("login-error");
+      const cancelBtn = document.getElementById("login-cancel");
+      const submitBtn = document.getElementById("login-submit");
+
+      // If sessionStorage has flag, skip
+      const AUTH_FLAG = "site_auth_ok_v1";
+
+      function lockBackground(lock) {
+        if (lock) document.documentElement.classList.add("login-locked"), document.body.classList.add("login-locked");
+        else document.documentElement.classList.remove("login-locked"), document.body.classList.remove("login-locked");
+      }
+
+      function showOverlay(show) {
+        if (show) {
+          overlay.style.display = "flex";
+          overlay.setAttribute("aria-hidden", "false");
+          lockBackground(true);
+          usernameInput.focus();
+        } else {
+          overlay.style.display = "none";
+          overlay.setAttribute("aria-hidden", "true");
+          lockBackground(false);
+        }
+      }
+
+      function checkAuth(username, password) {
+        // Simple check — replace with secure server-side check if needed
+        return username === VALID_USERNAME && password === VALID_PASSWORD;
+      }
+
+      // On load: if session flag present -> hide overlay
+      document.addEventListener("DOMContentLoaded", function () {
+        try {
+          const ok = sessionStorage.getItem(AUTH_FLAG);
+          if (ok === "1") {
+            showOverlay(false);
+            return;
+          }
+        } catch (e) { /* ignore storage errors */ }
+        showOverlay(true);
+      });
+
+      // Handle form submit
+      submitBtn.addEventListener("click", function (e) {
+        e.preventDefault();
+        errorBox.style.display = "none";
+        const user = usernameInput.value.trim();
+        const pass = passwordInput.value;
+
+        if (checkAuth(user, pass)) {
+          try {
+            sessionStorage.setItem(AUTH_FLAG, "1"); // keep for session
+          } catch (e) { /* ignore */ }
+          showOverlay(false);
+        } else {
+          errorBox.style.display = "block";
+          passwordInput.value = "";
+          passwordInput.focus();
+        }
+      });
+
+      // Allow Enter key on inputs
+      form.addEventListener("keydown", function (ev) {
+        if (ev.key === "Enter") {
+          ev.preventDefault();
+          submitBtn.click();
+        }
+      });
+
+      // Cancel button: still hide overlay? We'll just keep overlay but clear inputs
+      cancelBtn.addEventListener("click", function () {
+        usernameInput.value = "";
+        passwordInput.value = "";
+        errorBox.style.display = "none";
+        usernameInput.focus();
+      });
+
+      // Prevent clicking outside to close (so overlay remains until auth)
+      overlay.addEventListener("click", function (ev) {
+        if (ev.target === overlay) {
+          // do nothing (prevent closing)
+        }
+      });
+
+      // Optional: if you want to allow logout, provide a script to remove sessionStorage flag:
+      // sessionStorage.removeItem(AUTH_FLAG);
+    })();
+  </script>
+
+  <!-- === (awal isi file index.html Anda yang asli) === -->
+  <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+    <symbol xmlns="http://www.w3.org/2000/svg" id="send" viewBox="0 0 24 24">
+      <g fill="none">
+        <path
+          d="M24 0v24H0V0zM12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035c-.01-.004-.019-.001-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427c-.002-.01-.009-.017-.017-.018m.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093c.012.004.023 0 .029-.008l.004-.014l-.034-.614c-.003-.012-.01-.02-.02-.022m-.715.002a.023.023 0 0 0-.027.006l-.006.014l-.034.614c0 .012.007.02.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01z" />
+        <path fill="currentColor"
+          d="m21.433 4.861l-6 15.5a1 1 0 0 1-1.624.362l-3.382-3.235l-2.074 2.073a.5.5 0 0 1-.853-.354v-4.519L2.309 9.723a1 1 0 0 1 .442-1.691l17.5-4.5a1 1 0 0 1 1.181 1.329ZM19 6.001L8.032 13.152l1.735 1.66L19 6Z" />
+      </g>
+    </symbol>
+    <symbol xmlns="http://www.w3.org/2000/svg" id="quote" viewBox="0 0 16 16">
+      <path fill="currentColor"
+        d="M7 7v7H0V6.9c0-4.8 4.5-5.4 4.5-5.4l.6 1.4s-2 .3-2.4 1.9C2.3 6 3.1 7 3.1 7zm9 0v7H9V6.9c0-4.8 4.5-5.4 4.5-5.4l.6 1.4s-2 .3-2.4 1.9c-.4 1.2.4 2.2.4 2.2z" />
+    </symbol>
+    <symbol xmlns="http://www.w3.org/2000/svg" id="play" viewBox="0 0 24 24">
+      <path fill="currentColor"
+        d="M9.5 15.584V8.416a.5.5 0 0 1 .77-.42l5.576 3.583a.5.5 0 0 1 0 .842l-5.576 3.584a.5.5 0 0 1-.77-.42Z" />
+      <path fill="currentColor"
+        d="M1 12C1 5.925 5.925 1 12 1s11 4.925 11 11s-4.925 11-11 11S1 18.075 1 12m11-9.5A9.5 9.5 0 0 0 2.5 12a9.5 9.5 0 0 0 9.5 9.5a9.5 9.5 0 0 0 9.5-9.5A9.5 9.5 0 0 0 12 2.5" />
+    </symbol>
+    <symbol xmlns="http://www.w3.org/2000/svg" id="navbar-icon" viewBox="0 0 16 16">
+      <path
+        d="M14 10.5a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0 0 1h3a.5.5 0 0 0 .5-.5zm0-3a.5.5 0 0 0-.5-.5h-7a.5.5 0 0 0 0 1h7a.5.5 0 0 0 .5-.5zm0-3a.5.5 0 0 0-.5-.5h-11a.5.5 0 0 0 0 1h11a.5.5 0 0 0 .5-.5z" />
+    </symbol>
+
+    <symbol xmlns="http://www.w3.org/2000/svg" id="location" viewBox="0 0 24 24">
+      <path fill="currentColor"
+        d="M12 11.5A2.5 2.5 0 0 1 9.5 9A2.5 2.5 0 0 1 12 6.5A2.5 2.5 0 0 1 14.5 9a2.5 2.5 0 0 1-2.5 2.5M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7" />
+    </symbol>
+    <symbol xmlns="http://www.w3.org/2000/svg" id="phone" viewBox="0 0 24 24">
+      <path fill="currentColor"
+        d="m16.556 12.906l-.455.453s-1.083 1.076-4.038-1.862s-1.872-4.014-1.872-4.014l.286-.286c.707-.702.774-1.83.157-2.654L9.374 2.86C8.61 1.84 7.135 1.705 6.26 2.575l-1.57 1.56c-.433.432-.723.99-.688 1.61c.09 1.587.808 5 4.812 8.982c4.247 4.222 8.232 4.39 9.861 4.238c.516-.048.964-.31 1.325-.67l1.42-1.412c.96-.953.69-2.588-.538-3.255l-1.91-1.039c-.806-.437-1.787-.309-2.417.317" />
+    </symbol>
+    <symbol xmlns="http://www.w3.org/2000/svg" id="chevron-back-circle" viewBox="0 0 512 512">
+      <path fill="currentColor"
+        d="M256 48C141.13 48 48 141.13 48 256s93.13 208 208 208s208-93.13 208-208S370.87 48 256 48m35.31 292.69a16 16 0 1 1-22.62 22.62l-96-96a16 16 0 0 1 0-22.62l96-96a16 16 0 0 1 22.62 22.62L206.63 256Z" />
+    </symbol>
+    <symbol xmlns="http://www.w3.org/2000/svg" id="chevron-forward-circle" viewBox="0 0 512 512">
+      <path fill="currentColor"
+        d="M48 256c0 114.87 93.13 208 208 208s208-93.13 208-208S370.87 48 256 48S48 141.13 48 256m257.37 0l-84.68-84.69a16 16 0 0 1 22.62-22.62l96 96a16 16 0 0 1 0 22.62l-96 96a16 16 0 0 1-22.62-22.62Z" />
+    </symbol>
+    <symbol xmlns="http://www.w3.org/2000/svg" id="email" viewBox="0 0 24 24">
+      <path fill="currentColor"
+        d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5l-8-5V6l8 5l8-5v2z" />
+    </symbol>
+    <symbol xmlns="http://www.w3.org/2000/svg" id="clock" viewBox="0 0 24 24">
+      <path fill="currentColor"
+        d="M12 2A10 10 0 0 0 2 12a10 10 0 0 0 10 10a10 10 0 0 0 10-10A10 10 0 0 0 12 2m4.2 14.2L11 13V7h1.5v5.2l4.5 2.7z" />
+    </symbol>
+    <symbol xmlns="http://www.w3.org/2000/svg" id="star" viewBox="0 0 512 512">
+      <path fill="currentColor"
+        d="M394 480a16 16 0 0 1-9.39-3L256 383.76L127.39 477a16 16 0 0 1-24.55-18.08L153 310.35L23 221.2a16 16 0 0 1 9-29.2h160.38l48.4-148.95a16 16 0 0 1 30.44 0l48.4 149H480a16 16 0 0 1 9.05 29.2L359 310.35l50.13 148.53A16 16 0 0 1 394 480" />
+    </symbol>
+    <symbol xmlns="http://www.w3.org/2000/svg" id="play-circle" viewBox="0 0 24 24">
+      <path fill="currentColor"
+        d="m9.5 16.5l7-4.5l-7-4.5zM12 22q-2.075 0-3.9-.788t-3.175-2.137q-1.35-1.35-2.137-3.175T2 12q0-2.075.788-3.9t2.137-3.175q1.35-1.35 3.175-2.137T12 2q2.075 0 3.9.788t3.175 2.137q1.35 1.35 2.138 3.175T22 12q0 2.075-.788 3.9t-2.137 3.175q-1.35 1.35-3.175 2.138T12 22m0-8" />
+    </symbol>
+    <symbol xmlns="http://www.w3.org/2000/svg" id="facebook" viewBox="0 0 24 24">
+      <path fill="currentColor"
+        d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c5.05-.5 9-4.76 9-9.95z" />
+    </symbol>
+    <symbol xmlns="http://www.w3.org/2000/svg" id="youtube" viewBox="0 0 32 32">
+      <path fill="currentColor"
+        d="M29.41 9.26a3.5 3.5 0 0 0-2.47-2.47C24.76 6.2 16 6.2 16 6.2s-8.76 0-10.94.59a3.5 3.5 0 0 0-2.47 2.47A36.13 36.13 0 0 0 2 16a36.13 36.13 0 0 0 .59 6.74a3.5 3.5 0 0 0 2.47 2.47c2.18.59 10.94.59 10.94.59s8.76 0 10.94-.59a3.5 3.5 0 0 0 2.47-2.47A36.13 36.13 0 0 0 30 16a36.13 36.13 0 0 0-.59-6.74ZM13.2 20.2v-8.4l7.27 4.2Z" />
+    </symbol>
+    <symbol xmlns="http://www.w3.org/2000/svg" id="instagram" viewBox="0 0 256 256">
+      <path fill="currentColor"
+        d="M128 80a48 48 0 1 0 48 48a48.05 48.05 0 0 0-48-48Zm0 80a32 32 0 1 1 32-32a32 32 0 0 1-32 32Zm48-136H80a56.06 56.06 0 0 0-56 56v96a56.06 56.06 0 0 0 56 56h96a56.06 56.06 0 0 0 56-56V80a56.06 56.06 0 0 0-56-56Zm40 152a40 40 0 0 1-40 40H80a40 40 0 0 1-40-40V80a40 40 0 0 1 40-40h96a40 40 0 0 1 40 40Z" />
+    </symbol>
+    <!-- ... teruskan seluruh konten SVG dan sisa HTML Anda seperti semula ... -->
+  </svg>
+
+  <header id="header">
+    <nav class="header-top bg-secondary py-1">
+      <div class="container">
+        <div class="d-flex flex-wrap justify-content-between align-items-center">
+          <ul class="info d-flex flex-wrap list-unstyled m-0">
+            <li class="location text-white text-capitalize d-flex align-items-center me-4" style="font-size: 12px;">
+              <svg class="text-primary me-1" width="15" height="15">
+                <use xlink:href="#location"></use>
+              </svg>Polres Halmahera Selatan
+            </li>
+            <li class="phone text-white text-capitalize d-flex align-items-center me-4" style="font-size: 12px;">
+              <svg class="text-primary me-1" width="15" height="15">
+                <use xlink:href="#phone"></use>
+              </svg>08229622XXXX
+            </li>
+            <li class="time text-white text-capitalize d-flex align-items-center me-4" style="font-size: 12px;">
+              <svg class="text-primary me-1" width="15" height="15">
+                <use xlink:href="#clock"></use>
+              </svg>24 Jam nonstop
+            </li>
+          </ul>
+          <ul class="social-links d-flex flex-wrap list-unstyled m-0">
+            <li class="social">
+              <a href="https://www.facebook.com/reshalsel">
+                <svg class="social me-1" width="16" height="16">
+                  <use xlink:href="#facebook"></use>
+                </svg>
+              </a>
+            </li>
+            <li class="social ms-4">
+              <a href="https://x.com/Reshalselhumas">
+                <svg class="social me-1" width="16" height="16">
+                  <use xlink:href="#twitter"></use>
+                </svg>
+              </a>
+            </li>
+            <li class="social ms-4">
+              <a href="https://www.tiktok.com/@polreshalsel">
+                <svg class="social me-1" width="16" height="16">
+                  <use xlink:href="#line-md--tiktok"></use>
+                </svg>
+              </a>
+            </li>
+            <li class="social ms-4">
+              <a href="https://www.instagram.com/polreshalsel1/">
+                <svg class="social me-1" width="16" height="16">
+                  <use xlink:href="#instagram"></use>
+                </svg>
+              </a>
+            </li>
+            <li class="social ms-4">
+              <a href="https://www.youtube.com/@polreshalmaheraselatan6960">
+                <svg class="social me-1" width="16" height="16">
+                  <use xlink:href="#youtube"></use>
+                </svg>
+              </a>
+            </li>
+          </li>
+          <li class="social ms-4">
+            <a href="https://www.threads.com/@polreshalsel1">
+              <svg class="social me-1" width="16" height="16">
+                <use xlink:href="#fa7-brands--threads"></use>
+              </svg>
+            </a>
+          </li>
+        </li>
+        <li class="social ms-4">
+          <a href="https://polreshalsel.com/">
+            <svg class="social me-1" width="16" height="16">
+              <use xlink:href="#fluent--globe-12-regular"></use>
+            </svg>
+          </a>
+        </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <nav id="primary-header" class="navbar navbar-expand-lg py-3">
+      <div class="container">
+        <a class="navbar-brand" href="index.html">
+          <img src="images/main-logo.png" class="logo img-fluid">
+        </a>
+        <button class="navbar-toggler border-0 d-flex d-lg-none order-3 p-2 shadow-none" type="button"
+          data-bs-toggle="offcanvas" data-bs-target="#bdNavbar" aria-controls="bdNavbar" aria-expanded="false">
+          <svg class="navbar-icon" width="60" height="60">
+            <use xlink:href="#navbar-icon"></use>
+          </svg>
+        </button>
+        <div class="header-bottom offcanvas offcanvas-end" id="bdNavbar" aria-labelledby="bdNavbarOffcanvasLabel">
+          <div class="offcanvas-header px-4 pb-0">
+            <button type="button" class="btn-close btn-close-black mt-2" data-bs-dismiss="offcanvas" aria-label="Close"
+              data-bs-target="#bdNavbar"></button>
+          </div>
+          <div class="offcanvas-body align-items-center justify-content-end">
+            <ul class="navbar-nav align-items-center mb-2 mb-lg-0">
+              <li class="nav-item px-3">
+                <a class="nav-link active p-0" aria-current="page" href="index.html">Beranda</a>
+              </li>
+              <li class="nav-item px-3">
+                <a class="nav-link p-0" href="https://drive.google.com/drive/folders/1M7OFpg23KG7Nf6yyXCH-e3MBYQaASKt8?usp=sharing">TERBARU</a>
+              </li>
+              <li class="nav-item px-3">
+                <a class="nav-link p-0" href="https://drive.google.com/drive/folders/1M7OFpg23KG7Nf6yyXCH-e3MBYQaASKt8?usp=sharing">BULAN INI</a>
+              </li>
+              <li class="nav-item px-3">
+                <a class="nav-link p-0" href="contact.html">sering dibuka</a>
+              </li>
+              <li class="nav-item px-3 dropdown">
+                <a class="nav-link p-0 dropdown-toggle text-center " data-bs-toggle="dropdown" href="#" role="button"
+                  aria-expanded="false">Tahun 2026</a>
+                <ul class="dropdown-menu dropdown-menu-end animate slide mt-3 border-0 shadow">
+                  <li><a href="https://drive.google.com/drive/folders/1M7OFpg23KG7Nf6yyXCH-e3MBYQaASKt8?usp=sharing" class="dropdown-item text-uppercase ">Januari <span
+                        class="badge bg-secondary">2026</span></a></li>
+                  <li><a href="https://drive.google.com/drive/folders/1KBSCkaIJ_KXe_RP56ZZX3Fi842BqlCPt?usp=sharing" class="dropdown-item text-uppercase ">Februari <span
+                        class="badge bg-secondary">2026</span></a></li>
+                  <li><a href="https://drive.google.com/drive/folders/1Q7W61jwrl_qMwoW9wZmgiYmncvz0Zy_p?usp=sharing" class="dropdown-item text-uppercase ">Maret <span
+                        class="badge bg-secondary">2026</span></a></li>
+                  <li><a href="https://drive.google.com/drive/folders/1Z_Zpb_pIO_mk1jR7Yk6g26H52lbWYZ3o?usp=sharing" class="dropdown-item text-uppercase ">April <span
+                        class="badge bg-secondary">2026</span></a></li>
+                  <li><a href="https://drive.google.com/drive/folders/1712LlNniYD4VXC2WdQBTtsMuLLt2XWFC?usp=sharing" class="dropdown-item text-uppercase ">Mei <span
+                        class="badge bg-secondary">2026</span></a></li>
+                  <li><a href="https://drive.google.com/drive/folders/1dI0JRg59QDEcIfNkiDFeS0B2mST2Y2Hm?usp=sharing" class="dropdown-item text-uppercase ">Juni
+                      <span class="badge bg-secondary">2026</span></a></li>
+                  <li><a href="https://drive.google.com/drive/folders/1zEoCy2sh19hfzbXW9WOqnsJGIZv_1npM?usp=sharing" class="dropdown-item text-uppercase ">Juli <span
+                        class="badge bg-secondary">2026</span></a></li>
+                  <li><a href="https://drive.google.com/drive/folders/19YtboEZH0u8ehF5QwQT5J7SdnY2ziu64?usp=drive_link" class="dropdown-item text-uppercase ">Agustus
+                      <span class="badge bg-secondary">2026</span></a></li>
+                  <li><a href="https://drive.google.com/drive/folders/1j5I3Wc4ULk-leDFsuh8OWdxb3-yUyPUm?usp=drive_link" class="dropdown-item text-uppercase ">September <span
+                        class="badge bg-secondary">2026</span></a></li>
+                  <li><a href="https://drive.google.com/drive/folders/1vQtnu0kGADuuFCUgvzV-tQKEOiis6rZs?usp=drive_link" class="dropdown-item text-uppercase ">Oktober <span
+                        class="badge bg-secondary">2026</span></a></li>
+                  <li><a href="https://drive.google.com/drive/folders/1eCEvGjZBv_oIrDBhxObbjX0i_pGP8ve7?usp=drive_link" class="dropdown-item text-uppercase ">November <span
+                        class="badge bg-secondary">2026</span></a></li>
+                  <li><a href="https://drive.google.com/drive/folders/19yfGgrwfdH7HxBsbsmnhN6W-ndv4a_ob?usp=drive_link" class="dropdown-item text-uppercase ">Desember <span
+                        class="badge bg-secondary">2026</span></a></li>
+                  <li><a href="https://drive.google.com/drive/folders/1vxizEIRjo0XJE3Lx1Ghhr7azmJ_sHhWM?usp=sharing" class="dropdown-item text-uppercase ">Tahun Lalu <span
+                        class="badge bg-secondary"></span></a></li>
+                </ul>
+              </li>
+              <li class="nav-item px-3">
+                <a class="nav-link p-0 fw-bold text-uppercase" href="https://drive.google.com/drive/folders/1vxizEIRjo0XJE3Lx1Ghhr7azmJ_sHhWM?usp=sharing"
+                  target="_blank">Tahun 2025</a>
+              </li>
+
+              <li class="nav-item ps-3 mt-4 mt-lg-0">
+                <a href="https://drive.google.com/drive/folders/1GyRI579y_VCQq1wTWkew_DIy6LvbTZIT?usp=sharing" class="btn btn-outline-primary py-2 px-4">Upload File</a>
+              </li>
+
+            </ul>
+          </div>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <section id="slider">
+    <div class="swiper slider position-relative">
+      <div class="swiper-wrapper">
+        <div class="swiper-slide d-flex"
+          style="background-image: url(images/slider-image.jpg); background-size: cover; background-repeat: no-repeat; height: 90vh; background-position: center;">
+
+          <div class="container m-auto ">
+            <div class="text-start col-md-10 offset-md-1">
+              <h2 class="display-1 fw-bold text-white">Humas Polres</h2>
+              <h2 class="display-1 fw-bold text-white">Halmahera Selatan</h2>
+              <p class="text-white">Website ini dibuat untuk mempermudah mengelola arsip dokumentasi.<br>
+                Jadilah ahli, karena mereka yang tidak bisa digilas oleh waktu, mereka abadi. by-pp Izhar.</p>
+              <a href="https://drive.google.com/drive/folders/1GyRI579y_VCQq1wTWkew_DIy6LvbTZIT?usp=sharing" class="btn btn-primary mt-3">Upload File</a>
+            </div>
+          </div>
+        </div>
+    <nav id="primary-header" class="navbar navbar-expand-lg py-3">
+      <div class="container">
+        <a class="navbar-brand" href="index.html">
+          <img src="images/main-logo.png" class="logo img-fluid">
+        </a>
+        <button class="navbar-toggler border-0 d-flex d-lg-none order-3 p-2 shadow-none" type="button"
+          data-bs-toggle="offcanvas" data-bs-target="#bdNavbar" aria-controls="bdNavbar" aria-expanded="false">
+          <svg class="navbar-icon" width="60" height="60">
+            <use xlink:href="#navbar-icon"></use>
+          </svg>
+        </button>
+        <div class="header-bottom offcanvas offcanvas-end" id="bdNavbar" aria-labelledby="bdNavbarOffcanvasLabel">
+          <div class="offcanvas-header px-4 pb-0">
+            <button type="button" class="btn-close btn-close-black mt-2" data-bs-dismiss="offcanvas" aria-label="Close"
+              data-bs-target="#bdNavbar"></button>
+          </div>
+          <div class="offcanvas-body align-items-center justify-content-end">
+            <ul class="navbar-nav align-items-center mb-2 mb-lg-0">
+              <li class="nav-item px-3">
+                <a class="nav-link p-0 dropdown-toggle text-center " data-bs-toggle="dropdown" href="#" role="button"
+                  aria-expanded="false">Tahun 2026</a>
+                <ul class="dropdown-menu dropdown-menu-end animate slide mt-3 border-0 shadow">
+                  <li><a href="https://drive.google.com/drive/folders/1M7OFpg23KG7Nf6yyXCH-e3MBYQaASKt8?usp=sharing" class="dropdown-item text-uppercase ">Januari <span
+                        class="badge bg-secondary">2026</span></a></li>
+                  <li><a href="https://drive.google.com/drive/folders/1KBSCkaIJ_KXe_RP56ZZX3Fi842BqlCPt?usp=sharing" class="dropdown-item text-uppercase ">Februari <span
+                        class="badge bg-secondary">2026</span></a></li>
+                  <li><a href="https://drive.google.com/drive/folders/1Q7W61jwrl_qMwoW9wZmgiYmncvz0Zy_p?usp=sharing" class="dropdown-item text-uppercase ">Maret <span
+                        class="badge bg-secondary">2026</span></a></li>
+                  <li><a href="https://drive.google.com/drive/folders/1Z_Zpb_pIO_mk1jR7Yk6g26H52lbWYZ3o?usp=sharing" class="dropdown-item text-uppercase ">April <span
+                        class="badge bg-secondary">2026</span></a></li>
+                  <li><a href="https://drive.google.com/drive/folders/1712LlNniYD4VXC2WdQBTtsMuLLt2XWFC?usp=sharing" class="dropdown-item text-uppercase ">Mei <span
+                        class="badge bg-secondary">2026</span></a></li>
+                  <li><a href="https://drive.google.com/drive/folders/1dI0JRg59QDEcIfNkiDFeS0B2mST2Y2Hm?usp=sharing" class="dropdown-item text-uppercase ">Juni
+                      <span class="badge bg-secondary">2026</span></a></li>
+                  <li><a href="https://drive.google.com/drive/folders/1zEoCy2sh19hfzbXW9WOqnsJGIZv_1npM?usp=sharing" class="dropdown-item text-uppercase ">Juli <span
+                        class="badge bg-secondary">2026</span></a></li>
+                  <li><a href="https://drive.google.com/drive/folders/19YtboEZH0u8ehF5QwQT5J7SdnY2ziu64?usp=drive_link" class="dropdown-item text-uppercase ">Agustus
+                      <span class="badge bg-secondary">2026</span></a></li>
+                  <li><a href="https://drive.google.com/drive/folders/1j5I3Wc4ULk-leDFsuh8OWdxb3-yUyPUm?usp=drive_link" class="dropdown-item text-uppercase ">September <span
+                        class="badge bg-secondary">2026</span></a></li>
+                  <li><a href="https://drive.google.com/drive/folders/1vQtnu0kGADuuFCUgvzV-tQKEOiis6rZs?usp=drive_link" class="dropdown-item text-uppercase ">Oktober <span
+                        class="badge bg-secondary">2026</span></a></li>
+                  <li><a href="https://drive.google.com/drive/folders/1eCEvGjZBv_oIrDBhxObbjX0i_pGP8ve7?usp=drive_link" class="dropdown-item text-uppercase ">November <span
+                        class="badge bg-secondary">2026</span></a></li>
+                  <li><a href="https://drive.google.com/drive/folders/19yfGgrwfdH7HxBsbsmnhN6W-ndv4a_ob?usp=drive_link" class="dropdown-item text-uppercase ">Desember <span
+                        class="badge bg-secondary">2026</span></a></li>
+                  <li><a href="https://drive.google.com/drive/folders/1vxizEIRjo0XJE3Lx1Ghhr7azmJ_sHhWM?usp=sharing" class="dropdown-item text-uppercase ">Tahun Lalu <span
+                        class="badge bg-secondary"></span></a></li>
+                </ul>
+              </li>
+              <li class="nav-item px-3">
+                <a class="nav-link p-0 fw-bold text-uppercase" href="https://drive.google.com/drive/folders/1vxizEIRjo0XJE3Lx1Ghhr7azmJ_sHhWM?usp=sharing"
+                  target="_blank">Tahun 2025</a>
+              </li>
+
+              <li class="nav-item ps-3 mt-4 mt-lg-0">
+                <a href="https://drive.google.com/drive/folders/1GyRI579y_VCQq1wTWkew_DIy6LvbTZIT?usp=sharing" class="btn btn-outline-primary py-2 px-4">Upload File</a>
+              </li>
+
+            </ul>
+          </div>
+        </div>
+      </div>
+    </nav>
+  </header>
+  <!-- (lanjutkan seluruh isi file index.html Anda seperti sebelumnya tanpa perubahan) -->
+
+  <script src="js/jquery-1.11.0.min.js"></script>
+  <script type="text/javascript" src="js/bootstrap.bundle.min.js"></script>
+  <script type="text/javascript" src="js/plugins.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.js"></script>
+  <script type="text/javascript" src="js/script.js"></script>
+  <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+</body>
+
+</html>
